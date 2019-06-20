@@ -1,0 +1,6 @@
+name: food
+version: 0.0.0
+description: nutrients
+author: Tedsworth
+
+main: me.tedwoodworth.food.Food
