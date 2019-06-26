@@ -1,8 +1,11 @@
 package me.tedwoodworth.food;
 
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Food extends JavaPlugin {
+    public static Food plugin;
+
     @Override
     public void onDisable() {
         super.onDisable();
@@ -10,6 +13,9 @@ public class Food extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        System.out.println("tedwashere");
+        plugin = this;
+//        SleepManager.startTimer();
+        HealthManager.startTimer();
+        Bukkit.getPluginManager().registerEvents(new PlayerEventListener(), this);
     }
 }
