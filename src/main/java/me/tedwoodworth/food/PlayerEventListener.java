@@ -2,18 +2,17 @@ package me.tedwoodworth.food;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.player.PlayerGameModeChangeEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -131,4 +130,27 @@ public class PlayerEventListener implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+
+        Player player = event.getPlayer();
+        ItemStack item = event.getItem();
+
+        int realisticAmount = FoodTypeAmounts.getRealisticFoodAmount(item.getType());
+        int foodLevel = player.getFoodLevel();
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(Food.plugin, () -> {
+            int adjustedFoodLevel = foodLevel + realisticAmount;
+            if (adjustedFoodLevel > 20) {
+                adjustedFoodLevel = 20;
+            } else if (adjustedFoodLevel < 0) {
+                adjustedFoodLevel = 0;
+            }
+
+            player.setFoodLevel(adjustedFoodLevel);
+        }, 1L);
+    }
+
+
 }

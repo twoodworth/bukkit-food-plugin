@@ -14,7 +14,7 @@ public class HealthManager {
 
     private static void onHealthTimerTick() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.getFoodLevel() > 0 && !player.isDead()) {
+            if (player.getFoodLevel() > 6 && !player.isDead()) {
                 double maxHealth = player.getMaxHealth();
                 double newHealth = player.getHealth() + HEALTH_PER_TICK;
                 if (newHealth > maxHealth) {
