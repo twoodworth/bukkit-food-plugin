@@ -7,6 +7,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.*;
@@ -20,7 +21,7 @@ import javax.xml.bind.Marshaller;
 
 public class PlayerEventListener implements Listener {
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
         System.out.println("respawn");
@@ -34,7 +35,7 @@ public class PlayerEventListener implements Listener {
 
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onGameModeChange(PlayerGameModeChangeEvent event) {
         Player player = event.getPlayer();
         if (event.getNewGameMode() == GameMode.ADVENTURE) {
@@ -46,7 +47,7 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
         if (player.getGameMode() == GameMode.ADVENTURE) {
@@ -55,7 +56,7 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onEntityTarget(EntityTargetLivingEntityEvent event) {
         LivingEntity target = event.getTarget();
         if (target instanceof Player) {
@@ -66,7 +67,7 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
         Entity entity = event.getEntity();
         if (entity instanceof Player) {
@@ -79,7 +80,7 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onEntityDamageEntity(EntityDamageByEntityEvent event) {
         Entity damager = event.getDamager();
         if (damager instanceof Player) {
@@ -90,7 +91,7 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onVehicleDamage(VehicleDamageEvent event) {
         Entity attacker = event.getAttacker();
         if (attacker instanceof Player) {
@@ -101,7 +102,7 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onVehicleEnter(VehicleEnterEvent event) {
         Entity entered = event.getEntered();
         if (entered instanceof Player) {
@@ -112,7 +113,7 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if (player.getGameMode() == GameMode.ADVENTURE) {
@@ -120,7 +121,7 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onItemPickup(EntityPickupItemEvent event) {
         Entity entity = event.getEntity();
         if (entity instanceof Player) {
@@ -131,7 +132,7 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR  )
     public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
 
         Player player = event.getPlayer();

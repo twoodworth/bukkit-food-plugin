@@ -17,5 +17,7 @@ public class Food extends JavaPlugin {
 //        SleepManager.startTimer();
         HealthManager.startTimer();
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(), this);
+        Bukkit.getPluginManager().registerEvents(new Rotification(), this);
+        Rotification.startTimer();
     }
 }
