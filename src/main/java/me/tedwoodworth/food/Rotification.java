@@ -11,6 +11,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -102,13 +104,31 @@ public class Rotification implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onEatRot(PlayerItemConsumeEvent event) {
-        ItemStack item = event.getItem();
-        if (item.hasItemMeta()) {
-            ItemMeta meta = item.getItemMeta();
-            if (createRotItemLore().equals(meta.getLore())) {
+        if (isItemRot(event.getItem())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onIntentoryClick(InventoryClickEvent event) {
+        Inventory topInventory = event.getView().getTopInventory();
+        boolean clickedTopInventory = event.getRawSlot() < topInventory.getSize();
+        if (clickedTopInventory && topInventory.getType() == InventoryType.MERCHANT) {
+            if (isItemRot(event.getCursor())) {
                 event.setCancelled(true);
             }
         }
+    }
+
+    public static boolean isItemRot(ItemStack item) {
+        if (item != null && item.hasItemMeta()) {
+            ItemMeta meta = item.getItemMeta();
+            if (createRotItemLore().equals(meta.getLore())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static boolean canRot(Material type) {
