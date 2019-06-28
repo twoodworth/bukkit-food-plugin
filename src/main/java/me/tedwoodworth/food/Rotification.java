@@ -7,6 +7,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Cake;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -48,12 +50,25 @@ public class Rotification implements Listener {
 
         Block rotBlock = chunk.getBlock(x, y, z);
         BlockState blockState = rotBlock.getState();
+        BlockData blockData = rotBlock.getBlockData();
 
         if (blockState instanceof Container) {
             Container container = (Container) blockState;
             Inventory inventory = container.getInventory();
             rotInventory(inventory);
         }
+
+        if (blockData instanceof Cake) {
+            Cake cake = (Cake) blockData;
+            int newBites = cake.getBites() + 1;
+            if (newBites <= cake.getMaximumBites()) {
+                cake.setBites(newBites);
+                rotBlock.setBlockData(cake);
+            } else {
+                rotBlock.setType(Material.AIR);
+            }
+        }
+
 
         // TODO rot entities
     }
@@ -180,6 +195,7 @@ public class Rotification implements Listener {
             case ROSE_BUSH:
             case PEONY:
             case SUGAR_CANE:
+            case CAKE:
                 return true;
 
             default:

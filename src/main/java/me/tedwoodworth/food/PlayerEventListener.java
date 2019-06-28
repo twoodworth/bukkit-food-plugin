@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -141,6 +142,22 @@ public class PlayerEventListener implements Listener {
         ItemStack item = event.getItem();
 
         int realisticAmount = FoodTypeAmounts.getRealisticFoodAmount(item.getType());
+        adjustFoodLevel(player, realisticAmount);
+
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR  )
+    public void onCakeSliceConsume(PlayerInteractEvent event) {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Material type = event.getClickedBlock().getType();
+            if (type == Material.CAKE) {
+                int realisticAmount = FoodTypeAmounts.getRealisticFoodAmount(type);
+                adjustFoodLevel(event.getPlayer(), realisticAmount);
+            }
+        }
+    }
+
+    private void adjustFoodLevel(Player player, int realisticAmount) {
         int foodLevel = player.getFoodLevel();
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(Food.plugin, () -> {

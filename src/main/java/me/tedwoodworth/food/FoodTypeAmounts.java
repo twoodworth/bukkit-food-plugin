@@ -24,6 +24,8 @@ public class FoodTypeAmounts {
                 return 11;
             case BEETROOT_SOUP:
                 return 9;
+            case CAKE:
+                return 1;
             case PORKCHOP:
                 return 9;
             case COOKED_CHICKEN:
