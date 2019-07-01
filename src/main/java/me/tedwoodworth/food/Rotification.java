@@ -1,28 +1,34 @@
 package me.tedwoodworth.food;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Cake;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class Rotification implements Listener {
@@ -33,11 +39,15 @@ public class Rotification implements Listener {
     }
 
     private static void onRotTimerTick() {
-        for (int i = 0; i < 16; i++) {
-            for (World world : Bukkit.getWorlds()) {
-                for (Chunk chunk : world.getLoadedChunks()) {
+        for (World world : Bukkit.getWorlds()) {
+            for (Chunk chunk : world.getLoadedChunks()) {
+                for (int i = 0; i < 32; i++) {
                     rotChunk(chunk);
                 }
+            }
+
+            for (Entity entity : world.getEntities()) {
+                rotEntity(entity);
             }
         }
 
@@ -68,9 +78,37 @@ public class Rotification implements Listener {
                 rotBlock.setType(Material.AIR);
             }
         }
+    }
 
+    private static void rotEntity(Entity entity) {
+        if (entity instanceof InventoryHolder) {
+            InventoryHolder inventoryHolder = (InventoryHolder) entity;
+            if (random.nextDouble() < 25.0 / 16384.0) {
+                rotInventory(inventoryHolder.getInventory());
+            }
+        }
 
-        // TODO rot entities
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
+            if (random.nextDouble() < 1.0 / 3750.0) {
+                rotInventory(player.getEnderChest());
+            }
+        }
+
+        if (entity instanceof Item) {
+            Item item = (Item) entity;
+            if (random.nextDouble() < 1.0 / 1200.0) {
+                rotDroppedItem(item);
+            }
+        }
+    }
+
+    private static void rotDroppedItem(Item item) {
+        if (canRot(item.getItemStack().getType())) {
+            ItemStack rotItemStack = createRotItem();
+            rotItemStack.setAmount(item.getItemStack().getAmount());
+            item.setItemStack(rotItemStack);
+        }
     }
 
     private static void rotInventory(Inventory inventory) {
@@ -78,7 +116,6 @@ public class Rotification implements Listener {
             if (random.nextDouble() < .125) {
                 rotInventoryItem(inventory, slot);
             }
-
         }
     }
 
@@ -92,7 +129,13 @@ public class Rotification implements Listener {
                 inventory.setItem(slot, null);
             }
 
-            inventory.addItem(createRotItem());
+            Location inventoryLocation = inventory.getLocation();
+            if (inventoryLocation != null) {
+                Map<Integer, ItemStack> notAdded = inventory.addItem(createRotItem());
+                for (ItemStack itemNotAdded : notAdded.values()) {
+                    inventoryLocation.getWorld().dropItem(inventoryLocation, itemNotAdded);
+                }
+            }
         }
     }
 
@@ -114,6 +157,7 @@ public class Rotification implements Listener {
         List<String> lore = new ArrayList<>();
         lore.add("It sat out too long.");
         lore.add("Cannot be eaten.");
+        lore.add("Food stored in chests stay fresh longer.");
         return lore;
     }
 
@@ -146,12 +190,21 @@ public class Rotification implements Listener {
         return false;
     }
 
+    @EventHandler(ignoreCancelled = true)
+    private static void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        if (event.getRightClicked() instanceof LivingEntity) {
+            if (isItemRot(event.getPlayer().getInventory().getItemInMainHand())) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
     private static boolean canRot(Material type) {
         switch (type) {
             case GOLDEN_APPLE:
             case GOLDEN_CARROT:
             case ENCHANTED_GOLDEN_APPLE:
-            case CHORUS_PLANT:
+            case DRIED_KELP:
             case ROTTEN_FLESH:
                 return false;
 
@@ -172,6 +225,7 @@ public class Rotification implements Listener {
             case SPRUCE_LEAVES:
             case BIRCH_LEAVES:
             case JUNGLE_LEAVES:
+            case CHORUS_FRUIT:
             case GRASS:
             case FERN:
             case DANDELION:
