@@ -3,6 +3,7 @@ package me.tedwoodworth.food;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -11,8 +12,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
@@ -20,38 +19,42 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import javax.xml.bind.Marshaller;
-
 public class PlayerEventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
-    public void onPlayerRespawn(PlayerRespawnEvent event) {
+    private void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        System.out.println("respawn");
         if (player.getGameMode() == GameMode.SURVIVAL) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(Food.plugin, () -> afterPlayerRespawn(player), 1L);
         }
     }
 
-    public void afterPlayerRespawn(Player player) {
+    private void afterPlayerRespawn(Player player) {
         player.setGameMode(GameMode.ADVENTURE);
 
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onGameModeChange(PlayerGameModeChangeEvent event) {
+    private void onPlayerDeathEvent(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        player.setBedSpawnLocation(player.getLocation(), true);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    private void onGameModeChange(PlayerGameModeChangeEvent event) {
         Player player = event.getPlayer();
         if (event.getNewGameMode() == GameMode.ADVENTURE) {
             player.setFlySpeed(0.04f);
             player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1000000, 255, false, true, true));
             player.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 1000000, 255, false, true, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 1000000, 255, false, true, false));
         } else {
             player.setFlySpeed(0.1f);
         }
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onPlayerMove(PlayerMoveEvent event) {
+    private void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
         if (player.getGameMode() == GameMode.ADVENTURE) {
             player.setAllowFlight(true);
@@ -60,7 +63,23 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onEntityTarget(EntityTargetLivingEntityEvent event) {
+    private void onEntityBreedEvent(EntityBreedEvent event) {
+        Entity entity = event.getEntity();
+        if (entity.getTicksLived() > 48000) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    private void onCreatureSpawn(CreatureSpawnEvent event) {
+        Entity entity = event.getEntity();
+        if (entity instanceof Ageable) {
+            ((Ageable) entity).setBaby();
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    private void onEntityTarget(EntityTargetLivingEntityEvent event) {
         LivingEntity target = event.getTarget();
         if (target instanceof Player) {
             Player player = (Player) target;
@@ -71,7 +90,7 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onEntityDamage(EntityDamageEvent event) {
+    private void onEntityDamage(EntityDamageEvent event) {
         Entity entity = event.getEntity();
         if (entity instanceof Player) {
             Player player = (Player) entity;
@@ -84,7 +103,7 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onEntityDamageEntity(EntityDamageByEntityEvent event) {
+    private void onEntityDamageEntity(EntityDamageByEntityEvent event) {
         Entity damager = event.getDamager();
         if (damager instanceof Player) {
             Player player = (Player) damager;
@@ -95,7 +114,7 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onVehicleDamage(VehicleDamageEvent event) {
+    private void onVehicleDamage(VehicleDamageEvent event) {
         Entity attacker = event.getAttacker();
         if (attacker instanceof Player) {
             Player player = (Player) attacker;
@@ -106,7 +125,7 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onVehicleEnter(VehicleEnterEvent event) {
+    private void onVehicleEnter(VehicleEnterEvent event) {
         Entity entered = event.getEntered();
         if (entered instanceof Player) {
             Player player = (Player) entered;
@@ -117,7 +136,7 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onPlayerInteract(PlayerInteractEvent event) {
+    private void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if (player.getGameMode() == GameMode.ADVENTURE) {
             event.setCancelled(true);
@@ -125,7 +144,7 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onItemPickup(EntityPickupItemEvent event) {
+    private void onItemPickup(EntityPickupItemEvent event) {
         Entity entity = event.getEntity();
         if (entity instanceof Player) {
             Player player = (Player) entity;
@@ -135,8 +154,8 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR  )
-    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private void onPlayerItemConsume(PlayerItemConsumeEvent event) {
 
         Player player = event.getPlayer();
         ItemStack item = event.getItem();
@@ -146,8 +165,8 @@ public class PlayerEventListener implements Listener {
 
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR  )
-    public void onCakeSliceConsume(PlayerInteractEvent event) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    private void onCakeSliceConsume(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Material type = event.getClickedBlock().getType();
             if (type == Material.CAKE) {
@@ -169,6 +188,7 @@ public class PlayerEventListener implements Listener {
             }
 
             player.setFoodLevel(adjustedFoodLevel);
+            player.setSaturation(0);
         }, 1L);
     }
 }

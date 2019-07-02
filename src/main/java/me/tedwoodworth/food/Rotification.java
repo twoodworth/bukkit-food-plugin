@@ -7,18 +7,13 @@ import org.bukkit.block.Container;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Cake;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -101,6 +96,31 @@ public class Rotification implements Listener {
                 rotDroppedItem(item);
             }
         }
+        if (entity instanceof LivingEntity && entity.getTicksLived() > 120000 && entity instanceof Ageable) {
+            LivingEntity livingEntity = (LivingEntity) entity;
+            switch (entity.getType()) {
+                case BAT:
+                case COW:
+                case PIG:
+                case MULE:
+                case WOLF:
+                case HORSE:
+                case LLAMA:
+                case SHEEP:
+                case DONKEY:
+                case OCELOT:
+                case PARROT:
+                case RABBIT:
+                case TURTLE:
+                case DOLPHIN:
+                case CHICKEN:
+                case POLAR_BEAR:
+                case MUSHROOM_COW:
+                    if (random.nextDouble() < 1.0 / 120000.0) {
+                        livingEntity.setHealth(0.0);
+                    }
+            }
+        }
     }
 
     private static void rotDroppedItem(Item item) {
@@ -179,6 +199,7 @@ public class Rotification implements Listener {
         }
     }
 
+
     public static boolean isItemRot(ItemStack item) {
         if (item != null && item.hasItemMeta()) {
             ItemMeta meta = item.getItemMeta();
@@ -241,6 +262,7 @@ public class Rotification implements Listener {
             case VINE:
             case LILY_PAD:
             case NETHER_WART:
+            case KELP:
             case HAY_BLOCK:
             case SUNFLOWER:
             case LILAC:

@@ -4,5 +4,4 @@ description: nutrients
 author: Tedsworth
 
 main: me.tedwoodworth.food.Food
-depend: [CorpseReborn]
 api-version: 1.13
