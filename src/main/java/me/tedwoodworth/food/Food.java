@@ -18,6 +18,7 @@ public class Food extends JavaPlugin {
         HealthManager.startTimer();
         Bukkit.getPluginManager().registerEvents(new PlayerEventListener(), this);
         Bukkit.getPluginManager().registerEvents(new Rotification(), this);
+        PlayerEventListener.addTokenOfLifeRecipe();
         Rotification.startTimer();
     }
 }
