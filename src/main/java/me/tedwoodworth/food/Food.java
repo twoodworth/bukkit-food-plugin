@@ -7,11 +7,6 @@ public class Food extends JavaPlugin {
     public static Food plugin;
 
     @Override
-    public void onDisable() {
-        super.onDisable();
-    }
-
-    @Override
     public void onEnable() {
         plugin = this;
 //        SleepManager.startTimer();
@@ -20,5 +15,10 @@ public class Food extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new Rotification(), this);
         PlayerEventListener.addTokenOfLifeRecipe();
         Rotification.startTimer();
+    }
+
+    @Override
+    public void onDisable() {
+        super.onDisable();
     }
 }

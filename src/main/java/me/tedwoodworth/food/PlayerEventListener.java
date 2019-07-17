@@ -27,6 +27,7 @@ import java.util.*;
 import static org.bukkit.Bukkit.getServer;
 
 public class PlayerEventListener implements Listener {
+    private static final Random random = new Random();
     private final Map<UUID, Location> deathLocations = new HashMap<>();
 
     @EventHandler(ignoreCancelled = true)
@@ -288,6 +289,79 @@ public class PlayerEventListener implements Listener {
 
         int realisticAmount = FoodTypeAmounts.getRealisticFoodAmount(item.getType());
         adjustFoodLevel(player, realisticAmount);
+
+
+        double diseaseRandom = random.nextDouble();
+        PotionEffectType diseasePotionEffect = null;
+        int diseasePotionAmplifier = -1;
+
+        switch (event.getItem().getType()) {
+            case ROTTEN_FLESH:
+                diseasePotionEffect = PotionEffectType.HUNGER;
+                if (diseaseRandom < 0.5) {
+                    diseasePotionAmplifier = 3;
+                } else {
+                    diseasePotionAmplifier = 2;
+                }
+                break;
+
+            case PORKCHOP:
+            case BEEF:
+            case MUTTON:
+            case RABBIT:
+            case CHICKEN:
+                diseasePotionEffect = PotionEffectType.HUNGER;
+                if (diseaseRandom < 0.1) {
+                    diseasePotionAmplifier = 3;
+                } else if (diseaseRandom < 0.35) {
+                    diseasePotionAmplifier = 2;
+                } else if (diseaseRandom < .5) {
+                    diseasePotionAmplifier = 1;
+                }
+                break;
+
+            case COD:
+            case SALMON:
+            case PUFFERFISH:
+            case TROPICAL_FISH:
+                diseasePotionEffect = PotionEffectType.HUNGER;
+                if (diseaseRandom < 0.2) {
+                    diseasePotionAmplifier = 1;
+                } else if (diseaseRandom < 0.4) {
+                    diseasePotionAmplifier = 0;
+                }
+                break;
+
+            case CARROT:
+            case BEETROOT:
+            case APPLE:
+            case POISONOUS_POTATO:
+            case POTATO:
+            case CHORUS_FRUIT:
+                diseasePotionEffect = PotionEffectType.HUNGER;
+                if (diseaseRandom < 0.1) {
+                    diseasePotionAmplifier = 0;
+                }
+        }
+        if (diseasePotionEffect != null && diseasePotionAmplifier != -1) {
+            setHungerEffectLevel(player, diseasePotionAmplifier);
+        }
+    }
+
+    private void setHungerEffectLevel(Player player, int amplifier) {
+        int highestAmplifier = -1;
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            if (effect.getType().equals(PotionEffectType.HUNGER)) {
+                if (effect.getAmplifier() > highestAmplifier) {
+                    highestAmplifier = effect.getAmplifier();
+                }
+            }
+        }
+
+        if (amplifier > highestAmplifier) {
+            player.removePotionEffect(PotionEffectType.HUNGER);
+            player.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, 1000000, amplifier));
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
